@@ -1,0 +1,102 @@
+---
+title: "Project 2"
+format: 
+  html:
+    embed-resources: true
+    code-tools: true
+  pdf: default
+editor: visual
+---
+
+# Introduction
+
+-   **`animal_type`**: The type of animal admitted to the shelter.
+
+-   **`month`**: Month the animal was admitted, recorded numerically with January=1.
+
+-   **`year`**: Year the animal was admitted to the shelter.
+
+-   **`intake_type`**: Reason for the animal being admitted to the shelter.
+
+-   **`outcome_type`**: Final outcome for the admitted animal.
+
+-   **`chip_status`**: Indicates if the animal had a microchip with owner information.
+
+-   **`time_at_shelter`**: Days spent at the shelter between being admitted and the final outcome.
+
+In this Generalised Linear Model analysis, we will investigate:
+
+-   Which factors influence the number of days an animal spends in the shelter before their final outcome is decided?
+
+# Data Processing
+
+```{r}
+# Load the data and display the structure
+shelter <- read.csv("dataset19.csv")
+str(shelter)
+```
+
+```{r}
+# Check for missing values
+missing_values <- colSums(is.na(shelter))
+missing_values
+```
+
+
+```{r}
+# Convert categorical variables to 'factor'
+shelter$animal_type <- as.factor(shelter$animal_type)
+shelter$intake_type  <- as.factor(shelter$intake_type )
+shelter$outcome_type <- as.factor(shelter$outcome_type)
+shelter$chip_status <- as.factor(shelter$chip_status)
+```
+
+# Explanatory Data Analysis
+
+```{r, echo = FALSE, fig.cap="Distribution of Time at Shelter.", fig.align="center"}
+# Visualise the distribution of `time_at_shelter`
+library(ggplot2)
+library(gridExtra)
+
+# Histogram showing distribution
+p1 <- ggplot(shelter, aes(x = time_at_shelter)) + 
+  geom_histogram(binwidth = 1, color = "white") +
+  labs(x = "Days", y = "Frequency") 
+
+# Boxplot showing the distribution's summary statistics
+p2 <- ggplot(shelter, aes(x = time_at_shelter, y = "")) + 
+  geom_boxplot() +
+  labs(x = "Days", y = "")
+
+# Display plots side by side
+grid.arrange(p1, p2, nrow = 1)
+```
+
+
+```{r, echo = FALSE, fig.cap="Time at Shelter by Different Categories.", fig.align="center"}
+# Compare 'time_at_shelter' distributions across categories
+theme <- theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 6), plot.title = element_text(size = 10))
+# Create individual plots
+g1 <- ggplot(shelter, aes(x = animal_type, y = time_at_shelter, fill = animal_type)) + 
+  geom_boxplot(show.legend = FALSE) +
+  labs(title = "Animal Type") +
+  theme
+
+g2 <- ggplot(shelter, aes(x = intake_type, y = time_at_shelter, fill = intake_type)) + 
+  geom_boxplot(show.legend = FALSE) +
+  labs(title = "Intake Type") +
+  theme
+
+g3 <- ggplot(shelter, aes(x = outcome_type, y = time_at_shelter, fill = outcome_type)) + 
+  geom_boxplot(show.legend = FALSE) +
+  labs(title = "Outcome Type") +
+  theme
+
+g4 <- ggplot(shelter, aes(x = chip_status, y = time_at_shelter, fill = chip_status)) + 
+  geom_boxplot(show.legend = FALSE) +
+  labs(title = "Chip Status") +
+  theme
+
+# Arrange plots in a 2x2 matrix layout
+grid.arrange(g1, g2, g3, g4, nrow = 1)
+```
