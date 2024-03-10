@@ -1,0 +1,43 @@
+---
+title: "Data Analysis Skills – Group Project 2"
+number-sections: true
+format: 
+  html:
+    embed-resources: true
+    code-tools: true
+  pdf: default
+editor_options: 
+  chunk_output_type: console
+Author: Group 19
+---
+
+
+
+```{r}
+# Load the data and display the structure
+shelter <- read.csv("dataset19.csv")
+str(shelter)
+# Check for missing values
+missing_values <- colSums(is.na(shelter))
+missing_values
+# Convert categorical variables to 'factor'
+shelter$animal_type <- as.factor(shelter$animal_type)
+shelter$intake_type  <- as.factor(shelter$intake_type )
+shelter$outcome_type <- as.factor(shelter$outcome_type)
+shelter$chip_status <- as.factor(shelter$chip_status)
+```
+
+Given the nature of our response variable (**`time_at_shelter`**), which counts the number of days, a Poisson regression could initially be considered. However, considering the clear over-dispersion (indicated by the presence of outliers), a negative binomial regression may be more appropriate. Negative binomial regression will continue to be used to fit the GLM given the skewness and potential over-dispersion of the count data.
+
+```{r}
+# Generalised Linear Model (GLM) with Negative Binomial Distribution
+library(MASS)
+model_nb <- glm.nb(time_at_shelter ~ animal_type + intake_type + outcome_type + chip_status, data = shelter)
+summary(model_nb)
+```
+
+```{r}
+#Generalised Linear Model (GLM) with Poisson Distribution
+model_poi <- glm(time_at_shelter ~ animal_type + intake_type + outcome_type + chip_status, data = shelter, family=poisson)
+summary(model_poi)
+```
