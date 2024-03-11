@@ -36,8 +36,3 @@ model_nb <- glm.nb(time_at_shelter ~ animal_type + intake_type + outcome_type + 
 summary(model_nb)
 ```
 
-```{r}
-#Generalised Linear Model (GLM) with Poisson Distribution
-model_poi <- glm(time_at_shelter ~ animal_type + intake_type + outcome_type + chip_status, data = shelter, family=poisson)
-summary(model_poi)
-```
