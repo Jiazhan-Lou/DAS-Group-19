@@ -69,7 +69,7 @@ p2 <- ggplot(shelter, aes(x = time_at_shelter, y = "")) +
   labs(x = "Days", y = "")
 
 # Display plots side by side
-grid.arrange(p1, p2, nrow = 1)
+grid.arrange(p1, p2, nrow = 1, top = "Figure 1. Time at Shelter Analysis")
 ```
 
 
