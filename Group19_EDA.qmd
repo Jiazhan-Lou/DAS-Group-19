@@ -98,5 +98,5 @@ g4 <- ggplot(shelter, aes(x = chip_status, y = time_at_shelter, fill = chip_stat
   theme
 
 # Arrange plots in a 2x2 matrix layout
-grid.arrange(g1, g2, g3, g4, nrow = 1)
+grid.arrange(g1, g2, g3, g4, nrow = 1, top = "Figure 2. Time at Shelter Analysis by Category")
 ```
