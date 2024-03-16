@@ -8,23 +8,31 @@ Our dataset includes information on animals admitted to shelters, such as the ty
 
 ## Project Tasks
 
-### Data Processing:
+Which factors influence the number of days an animal spends in the shelter before their final outcome is
+decided?
+
+### Data Processing
+
 - Load the dataset and examine its structure. 
 - Look for any missing values and take appropriate action.
 - To prepare variables for analysis
 
-### Explanatory Data Analysis (EDA):
+### Explanatory Data Analysis (EDA)
+
 - Use boxplots and histograms to visualise the distribution of the variable "time_at_shelter."
 - Examine how "time_at_shelter" is distributed among various categories, including animal type, intake type, outcome type, and chip status.
 
-### Generalised Linear Model (GLM):
+### Generalised Linear Model (GLM)
+
 - Create a GLM model to fit the 'time_at_shelter' count data.
 - Interpret the model's coefficients 
 
 ## Repository Contents
+
 - Dataset: dataset19.csv
 - Code: R scripts for data processing, EDA, and GLM analysis.
 - Plots: Visualisations generated during the analysis.
 
 ## How to Contribute
+
 Please feel free to share any suggestions, improvements, or questions you have about our analysis.
