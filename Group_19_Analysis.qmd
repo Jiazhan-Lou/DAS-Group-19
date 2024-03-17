@@ -1,0 +1,142 @@
+---
+title: "Data Analysis Skills – Group Project 2"
+number-sections: true
+format: 
+  html:
+    embed-resources: true
+    code-tools: true
+  pdf: default
+editor_options: 
+  chunk_output_type: console
+Author: Group 19
+---
+
+# Introduction
+
+The length of stay of animals in shelters is a critical metric that influences not only the well-being of the animals but also the operational and resource allocation aspects of shelter management. Which factors influence the number of days an animal spends in the shelter before their final outcome is decided?
+
+# Data Processing
+
+For this project, we assess several variables, each containing a variety of information related to every animal admitted to the shelter.
+
+-   **`animal_type`**: The type of animal admitted to the shelter.
+
+-   **`month`**: Month the animal was admitted, recorded numerically with January=1.
+
+-   **`year`**: Year the animal was admitted to the shelter.
+
+-   **`intake_type`**: Reason for the animal being admitted to the shelter.
+
+-   **`outcome_type`**: Final outcome for the admitted animal.
+
+-   **`chip_status`**: Indicates if the animal had a microchip with owner information.
+
+-   **`time_at_shelter`**: Days spent at the shelter between being admitted and the final outcome.
+
+```{r}
+# Load the data and display the structure
+shelter <- read.csv("dataset19.csv")
+str(shelter)
+```
+
+```{r}
+# Check for missing values
+missing_values <- colSums(is.na(shelter))
+missing_values
+```
+
+After checking, there are no missing values in the dataset. Then converted the categorical variables (**`animal_type`**, **`intake_type`**, **`outcome_type`**, **`chip_status`**) to the appropriate data type.
+
+```{r}
+# Convert categorical variables to 'factor'
+shelter$animal_type <- as.factor(shelter$animal_type)
+shelter$intake_type  <- as.factor(shelter$intake_type )
+shelter$outcome_type <- as.factor(shelter$outcome_type)
+shelter$chip_status <- as.factor(shelter$chip_status)
+```
+
+# Explanatory Data Analysis
+
+Initially, undertake an exploratory data analysis (EDA) to visualize the distribution of the **time_at_shelter** variable.
+
+```{r, echo = FALSE, fig.cap="Distribution of Time at Shelter.", fig.align="center"}
+# Visualise the distribution of `time_at_shelter`
+library(ggplot2)
+library(gridExtra)
+
+# Histogram showing distribution
+p1 <- ggplot(shelter, aes(x = time_at_shelter)) + 
+  geom_histogram(binwidth = 1, color = "white") +
+  labs(x = "Days", y = "Frequency") 
+
+# Boxplot showing the distribution's summary statistics
+p2 <- ggplot(shelter, aes(x = time_at_shelter, y = "")) + 
+  geom_boxplot() +
+  labs(x = "Days", y = "")
+
+# Display plots side by side
+grid.arrange(p1, p2, nrow = 1)
+```
+
+The histogram and boxplot showed a right-skewed with the presence of several outliers, indicating that while most animals stayed in the shelter for relatively short periods of time, there were a few that stayed for longer periods of time.
+
+Next, explore the relationship between **`time_at_shelter`** and the categorical variables (**`animal_type`**, **`intake_type`**, **`outcome_type`**, **`chip_status`**) .
+
+```{r, echo = FALSE, fig.cap="Time at Shelter by Different Categories.", fig.align="center"}
+# Compare 'time_at_shelter' distributions across categories
+theme <- theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 6), plot.title = element_text(size = 10))
+# Create individual plots
+g1 <- ggplot(shelter, aes(x = animal_type, y = time_at_shelter, fill = animal_type)) + 
+  geom_boxplot(show.legend = FALSE) +
+  labs(title = "Animal Type") +
+  theme
+
+g2 <- ggplot(shelter, aes(x = intake_type, y = time_at_shelter, fill = intake_type)) + 
+  geom_boxplot(show.legend = FALSE) +
+  labs(title = "Intake Type") +
+  theme
+
+g3 <- ggplot(shelter, aes(x = outcome_type, y = time_at_shelter, fill = outcome_type)) + 
+  geom_boxplot(show.legend = FALSE) +
+  labs(title = "Outcome Type") +
+  theme
+
+g4 <- ggplot(shelter, aes(x = chip_status, y = time_at_shelter, fill = chip_status)) + 
+  geom_boxplot(show.legend = FALSE) +
+  labs(title = "Chip Status") +
+  theme
+
+# Arrange plots in a 2x2 matrix layout
+grid.arrange(g1, g2, g3, g4, nrow = 1)
+```
+
+The box plots reveal several insights into how the duration of stay at the shelter (**`time_at_shelter`**) varies across different categories:
+
+-   **Animal Type:** Some variation appears to exist in the median length of stay in the shelter for different animal types.
+
+-   **Intake Type:** Reason for sheltering has strong influences on the time animals spend at the shelter, with noticeable differences between categories.
+
+-   **Outcome Type:** The final outcome for the animal contributes significantly to the length of time an animal stays in the shelter.
+
+-   **Chip Status:** The presence of a microchip may affect the time spent at the shelter, though the effect seems to be insignificant compared to other factors..
+
+Based on these observations, **`animal_type`**, **`intake_type`**, **`outcome_type`**, and **`chip_status`** could be significant predictors of the time an animal spends at the shelter. In our GLM, we will consider these variables as explanatory variables.
+
+# Generalised Linear Model
+
+Given the nature of our response variable (**`time_at_shelter`**), which counts the number of days, a Poisson regression could initially be considered. However, considering the clear over-dispersion (indicated by the presence of outliers), a negative binomial regression may be more appropriate. Negative binomial regression will continue to be used to fit the GLM given the skewness and potential over-dispersion of the count data.
+
+```{r}
+# Generalised Linear Model (GLM) with Negative Binomial Distribution
+library(MASS)
+model_nb <- glm.nb(time_at_shelter ~ animal_type + intake_type + outcome_type + chip_status, data = shelter)
+summary(model_nb)
+
+```
+
+From the summary of Generalised Linear Model (GLM) with Negative Binomial Distribution, we prove that the coefficient of **intake_typeOWNER SURRENDER** = -1.68925, P-value \< 2e-16, which indicates that animals surrendered by their owners tend to have shorter stays at the shelter compared to other intake types. The coefficient of **Intake Type - Stray** = -1.33821, P-value \< 2e-16, which indicates that stray animals spend less time at the shelter. The coefficient of **Outcome Type - Died** = -0.87955, P-value = 0.000214, which indicates that animals that die at the shelter have a shorter length of stay. The coefficient of **Outcome Type - Euthanized** = -0.73928, P-value \< 2e-16, which indicates that euthanized animals have shorter stays at the shelter. The coefficient of **Outcome Type - Foster** = -0.45149, P-value = 0.006737, which indicates that animals placed in foster care tend to have shorter lengths of stay at the shelter. The coefficient of **Outcome Type - Returned to Owner** = -1.63708, P-value \< 2e-16, which indicates that animals returned to their owners spend less time at the shelter. The coefficient of **Chip Status - Scan No Chip** = -0.15196, P-value = 0.030393, which indicates that animals without a microchip scan have a slightly shorter stay at the shelter. And other variables showed higher P-values, indicating that their relationship with the length of stay at the shelter is not as significant.
+
+# Model Evaluation
+
+In conclusion, we find that intake type , outcome type , and chip status significantly affect the length of stay of animals in a shelter. Especially, intake type with owner surrender and stray and outcome type with died, foster, return to owner and euthanized and chip with scan no chip significantly influence the length of stay of animals in a shelter before their final outcome is decided.
+
